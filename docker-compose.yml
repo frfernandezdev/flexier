@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+    emulator:
+      build:
+        context: .
+        dockerfile: ./docker/emulator/Dockerfile
+      image: emulator
+      ports:
+        - 9000:9000
+        - 9099:9099
+        - 9090:9090
+        - 9150:9150
+        - 4500:4500
+        - 4400:4400
+    server:
+      build:
+        context: .
+        dockerfile: ./docker/server/Dockerfile
+      image: server
+      env_file: ./docker/server/server.conf
+      tty: true
+      volumes:
+        - .:/srv/app
+      ports:
+        - 5000:5000
+      depends_on:
+      - emulator
+    tests:
+      build:
+        context: .
+        dockerfile: ./docker/tests/Dockerfile
+      image: tests
+      env_file: ./docker/tests/tests.conf
+      tty: true
+      volumes:
+        - ./:/srv/app
+      depends_on:
+        - emulator
